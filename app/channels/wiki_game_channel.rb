@@ -39,7 +39,7 @@ module SubscriberTracker
     list.size
   end
 end
-
+require 'mechanize'
 # TODO: 更新処理された時の処理
 class WikiGameChannel < ApplicationCable::Channel
   # DONE: nextNumberは複数のコネクションがあっても大丈夫じゃない気がする
