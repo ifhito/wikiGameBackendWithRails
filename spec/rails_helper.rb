@@ -40,10 +40,9 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = true
 
   config.before(:suite) do
-    DatabaseCleaner[:redis].db =  Redis.new(:host => 'localhost', :port => 6379) # デフォルト設定（0番をテストdbにする）の場合はこの行がなくてもok
-    DatabaseCleaner[:redis].db = :default
-    # DatabaseCleaner[:redis].strategy = :truncation
-    # DatabaseCleaner.clean_with(:truncation)
+    DatabaseCleaner[:redis].db = 'redis://localhost:6379' # デフォルト設定（0番をテストdbにする）の場合はこの行がなくてもok
+    DatabaseCleaner.strategy = :deletion
+    DatabaseCleaner.clean_with(:deletion)
   end
 
   config.before(:each) do
@@ -54,7 +53,6 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
     DatabaseCleaner[:redis].clean # flushdbを実行
   end
-
   # You can uncomment this line to turn off ActiveRecord support entirely.
   # config.use_active_record = false
 
