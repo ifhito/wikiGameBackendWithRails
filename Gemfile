@@ -32,6 +32,7 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'database_cleaner'
   gem 'database_cleaner-redis'
+  gem 'mock_redis'
 end
 
 group :development do

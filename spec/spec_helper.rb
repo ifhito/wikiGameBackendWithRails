@@ -37,6 +37,19 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 
+  # config.before(:all) do
+  #   # for Spring
+  #   $redis.client.reconnect
+  # end
+  # config.before(:each) do
+  #   redis_instance = MockRedis.new
+  #   Redis.stub(:new).and_return{ redis_instance }
+  #   # for redis cache.
+  #   #Redis::Store.stub(:new).and_return{ redis_instance }
+  #   # 追記
+  #   $redis = Redis.new
+  # end
+
   # This option will default to `:apply_to_host_groups` in RSpec 4 (and will
   # have no way to turn it off -- the option exists only for backwards
   # compatibility in RSpec 3). It causes shared context metadata to be
