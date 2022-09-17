@@ -4,7 +4,7 @@ module SubscriberTracker
   def self.add_sub(room, user_name)
     # count = sub_count(room)
     list = sub_get_list(room)
-    puts "list: #{list}"
+    # puts "list: #{list}"
     if list.nil?
       list = []
     end
@@ -12,16 +12,16 @@ module SubscriberTracker
   end
 
   def self.remove_sub(room, user_name)
-    puts "userNum: #{user_name}"
+    # puts "userNum: #{user_name}"
     count = sub_count(room)
     if count == 1
       $redis.del(room)
     else
       list = sub_get_list(room)
-      puts "sub_get_list: #{list}"
+      # puts "sub_get_list: #{list}"
       del_room(room)
       list.delete(user_name)
-      puts "new_list: #{list}"
+      # puts "new_list: #{list}"
       $redis.rpush(room, list)
     end
   end
@@ -35,7 +35,7 @@ module SubscriberTracker
   end
   def self.sub_count(room)
     list = sub_get_list(room)
-    puts "count: #{list.size} #{list}"
+    # puts "count: #{list.size} #{list}"
     list.size
   end
 end
@@ -49,7 +49,7 @@ class WikiGameChannel < ApplicationCable::Channel
       transmit({"error":"fillConnection", "message":"もうRoomがいっぱいです。"})
       return
     end
-    puts "params: #{params}"
+    # puts "params: #{params}"
     agent = Mechanize.new
     stream_from "wikigame_channel_#{params[:room]}"
     SubscriberTracker.add_sub(params[:room], params[:name])
@@ -57,7 +57,7 @@ class WikiGameChannel < ApplicationCable::Channel
     answerHtml = answerPage.content.force_encoding("UTF-8")
     doc = Nokogiri::HTML.parse(answerHtml)
     title = doc.title
-    # puts "get", get_num_connection("wikigame_channel_#{params[:room]}")
+    # # puts "get", get_num_connection("wikigame_channel_#{params[:room]}")
     connect_number = SubscriberTracker.sub_count(params[:room])
     name_list = SubscriberTracker.sub_get_list(params[:room])
     data = {"answerTitle": title, "connectNumber":connect_number, "roomId": params[:room], 'nameList': name_list}
@@ -78,14 +78,14 @@ class WikiGameChannel < ApplicationCable::Channel
 
   def send_url(data)
     # stream_from 'wikigame_channel'
-    puts "test",data["myNumber"], data["nextNumber"]
+    # puts "test",data["myNumber"], data["nextNumber"]
     agent = Mechanize.new
     page = agent.get("https://ja.wikipedia.org/wiki/#{data["title"]}")
     html = page.content.force_encoding("UTF-8")
     # nextNumber = 1
     nextNumber = data["nextNumber"] + 1
     connect_number = SubscriberTracker.sub_count(params[:room])
-    puts "numberTrue: #{nextNumber >= connect_number}"
+    # puts "numberTrue: #{nextNumber >= connect_number}"
     if(nextNumber >= connect_number)
       nextNumber = 0
     end
@@ -110,12 +110,12 @@ class WikiGameChannel < ApplicationCable::Channel
   end
   # Userを削除後、そのUserの順番だった場合は順番の変更を行う
   def delete_user(data)
-    puts "test: #{data["myNumber"]} #{data["nextNumber"]} #{data["nowName"]} #{data["myName"]}"
+    # puts "test: #{data["myNumber"]} #{data["nextNumber"]} #{data["nowName"]} #{data["myName"]}"
     nextNumber = data["nextNumber"] + 1
     SubscriberTracker.remove_sub(params[:room], data["myName"])
     if data["myName"] === data["nowName"]
       connect_number = SubscriberTracker.sub_count(params[:room])
-      puts "connect_number: #{connect_number}"
+      # puts "connect_number: #{connect_number}"
       if(nextNumber >= connect_number)
         nextNumber = 0
       end
