@@ -90,7 +90,7 @@ class WikiGameChannel < ApplicationCable::Channel
       nextNumber = 0
     end
     name_list = SubscriberTracker.sub_get_list(params[:room])
-    data = {"data": html, 'nextName': name_list[nextNumber], 'nextNumber':nextNumber}
+    data = {"data": html, 'nextName': name_list[nextNumber], 'nextNumber': nextNumber}
     url = page.uri.to_s
     # transmit(data)
     ActionCable.server.broadcast("wikigame_channel_#{params[:room]}", message: data.as_json)
@@ -102,16 +102,15 @@ class WikiGameChannel < ApplicationCable::Channel
     winnerData = {
       winner: data["name"],
     }
-    data = {"data": winnerData}
     # transmit(data)
     SubscriberTracker.del_room(params[:room])
-    ActionCable.server.broadcast("wikigame_channel_#{params[:room]}", message: data.as_json)
+    ActionCable.server.broadcast("wikigame_channel_#{params[:room]}", message: winnerData.as_json)
     # transmit(data)
   end
   # Userを削除後、そのUserの順番だった場合は順番の変更を行う
   def delete_user(data)
+    nextNumber = data["nextNumber"]
     # puts "test: #{data["myNumber"]} #{data["nextNumber"]} #{data["nowName"]} #{data["myName"]}"
-    nextNumber = data["nextNumber"] + 1
     SubscriberTracker.remove_sub(params[:room], data["myName"])
     if data["myName"] === data["nowName"]
       connect_number = SubscriberTracker.sub_count(params[:room])
