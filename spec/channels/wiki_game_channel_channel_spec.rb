@@ -25,9 +25,9 @@ RSpec.describe WikiGameChannel, type: :channel do
 
       it '部屋が作成されるとそのユーザの答えのタイトル、接続の数、部屋のID, 参加者名がブロードキャストされる' do
         expect{subject}.to have_broadcasted_to('wikigame_channel_test').with{ |data|
-          expect(data['message']['connectNumber']).to eq 1
-          expect(data['message']['answerTitle']).to_not eq ''
-          expect(data['message']['roomId']).to_not eq ''
+          expect(data['connectNumber']).to eq 1
+          expect(data['answerTitle']).to_not eq ''
+          expect(data['roomId']).to_not eq ''
         }
       end
       # {'data': html, 'nextNumber':0, 'nextName': name_list[0]}
@@ -44,10 +44,10 @@ RSpec.describe WikiGameChannel, type: :channel do
           data: {action: 'start_game'}
           }
         end .to have_broadcasted_to('wikigame_channel_test').with{ |data|
-         expect(data['message']['data']).to_not eq ''
-         expect(data['message']['nextNumber']).to eq 0
+         expect(data['data']).to_not eq ''
+         expect(data['nextNumber']).to eq 0
          name_list = SubscriberTracker.sub_get_list('test')
-         expect(data['message']['nextName']).to eq name_list[0]
+         expect(data['nextName']).to eq name_list[0]
         }
       end
 
@@ -60,9 +60,9 @@ RSpec.describe WikiGameChannel, type: :channel do
           agent = Mechanize.new
           page = agent.get("https://ja.wikipedia.org/wiki/桃太郎")
           html = page.content.force_encoding("UTF-8")
-          expect(data['message']['data']).to eq html
-          expect(data['message']['nextNumber']).to eq 1
-          expect(data['message']['nextName']).to eq name_list[1]
+          expect(data['data']).to eq html
+          expect(data['nextNumber']).to eq 1
+          expect(data['nextName']).to eq name_list[1]
         }
       end
 
@@ -71,7 +71,7 @@ RSpec.describe WikiGameChannel, type: :channel do
         subscribe(room: 'test', name: 'testuser2')
         expect do perform :decied_winner, name: "testuser"
         end .to have_broadcasted_to('wikigame_channel_test').with{ |data|
-          expect(data['message']['winner']).to eq "testuser"
+          expect(data['winner']).to eq "testuser"
           expect($redis.keys('*')).to eq []
         }
       end
@@ -86,8 +86,8 @@ RSpec.describe WikiGameChannel, type: :channel do
         subscribe(room: room, name: user3[:name])
         expect do perform :delete_user, myName: 'testuser2', nowName: 'testuser', nextNumber: user1[:num]
         end .to have_broadcasted_to('wikigame_channel_test').with{ |data|
-          expect(data['message']['nextNumber']).to eq 0
-          expect(data['message']['nextName']).to eq 'testuser'
+          expect(data['nextNumber']).to eq 0
+          expect(data['nextName']).to eq 'testuser'
           name_list = SubscriberTracker.sub_get_list('test')
           expect(name_list).to eq ['testuser', 'testuser3']
           expect($redis.keys('*')).to eq ["test"]
@@ -104,8 +104,8 @@ RSpec.describe WikiGameChannel, type: :channel do
         subscribe(room: room, name: user3[:name])
         expect do perform :delete_user, myName: 'testuser', nowName: 'testuser', nextNumber: user1[:num]
         end .to have_broadcasted_to('wikigame_channel_test').with{ |data|
-          expect(data['message']['nextNumber']).to eq 0
-          expect(data['message']['nextName']).to eq 'testuser2'
+          expect(data['nextNumber']).to eq 0
+          expect(data['nextName']).to eq 'testuser2'
           name_list = SubscriberTracker.sub_get_list('test')
           expect(name_list).to eq ['testuser2', 'testuser3']
           expect($redis.keys('*')).to eq ["test"]
@@ -122,8 +122,8 @@ RSpec.describe WikiGameChannel, type: :channel do
         subscribe(room: room, name: user3[:name])
         expect do perform :delete_user, myName: 'testuser3', nowName: 'testuser3', nextNumber: user3[:num]
         end .to have_broadcasted_to('wikigame_channel_test').with{ |data|
-          expect(data['message']['nextNumber']).to eq 0
-          expect(data['message']['nextName']).to eq 'testuser'
+          expect(data['nextNumber']).to eq 0
+          expect(data['nextName']).to eq 'testuser'
           name_list = SubscriberTracker.sub_get_list('test')
           expect(name_list).to eq ['testuser', 'testuser2']
           expect($redis.keys('*')).to eq ["test"]
@@ -136,8 +136,8 @@ RSpec.describe WikiGameChannel, type: :channel do
         subscribe(room: room, name: user1[:name])
         expect do perform :delete_user, myName: 'testuser', nowName: 'testuser', nextNumber: user1[:num]
         end .to have_broadcasted_to('wikigame_channel_test').with{ |data|
-          expect(data['message']['nextNumber']).to eq 0
-          expect(data['message']['nextName']).to eq nil
+          expect(data['nextNumber']).to eq 0
+          expect(data['nextName']).to eq nil
           expect($redis.keys('*')).to eq []
         }
       end
