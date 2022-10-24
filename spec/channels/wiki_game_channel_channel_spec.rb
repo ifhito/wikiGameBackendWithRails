@@ -66,6 +66,20 @@ RSpec.describe WikiGameChannel, type: :channel do
         }
       end
 
+      it 'wikipediaに存在しない要素を検索しようとするとエラーとなり、notFoundイベントが飛ぶ' do
+        subscribe(room: 'test', name: 'testuser')
+        subscribe(room: 'test', name: 'testuser2')
+        expect do perform :send_url, title: 'xxxxxxxxxxxxxxxテストxxx', myNumber: 0, nextNumber: 0
+        end .to have_broadcasted_to('wikigame_channel_test').with{ |data|
+          # name_list = SubscriberTracker.sub_get_list('test')
+          # agent = Mechanize.new
+          # page = agent.get("https://ja.wikipedia.org/wiki/桃太郎")
+          # html = page.content.force_encoding("UTF-8")
+          expect(data['action']).to eq "not_found"
+          expect(data['notFoundText']).to eq 'xxxxxxxxxxxxxxxテストxxx'
+        }
+      end
+
       it 'decied_winnerが決まると勝利者の名前が渡される' do
         subscribe(room: 'test', name: 'testuser')
         subscribe(room: 'test', name: 'testuser2')
