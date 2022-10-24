@@ -81,7 +81,13 @@ class WikiGameChannel < ApplicationCable::Channel
     # stream_from 'wikigame_channel'
     # puts "test",data["myNumber"], data["nextNumber"]
     agent = Mechanize.new
-    page = agent.get("https://ja.wikipedia.org/wiki/#{data["title"]}")
+    begin
+      page = agent.get("https://ja.wikipedia.org/wiki/#{data["title"]}")
+    rescue => exception
+      data = {"action": "not_found", "notFoundText": data["title"]}
+      ActionCable.server.broadcast("wikigame_channel_#{params[:room]}", data.as_json)
+      return
+    end
     html = page.content.force_encoding("UTF-8")
     # nextNumber = 1
     nextNumber = data["nextNumber"] + 1
